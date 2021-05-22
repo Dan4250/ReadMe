@@ -1,0 +1,149 @@
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import(QApplication, QButtonGroup, QWidget, QLabel,QGroupBox, QVBoxLayout, QHBoxLayout,QMessageBox, QPushButton, QRadioButton)
+from random import shuffle
+from random import randint
+class Question():
+    def __init__(self, question, right_answer, wrong1, wrong2, wrong3):
+        self.question = question
+        self.right_answer = right_answer
+        self.wrong1 = wrong1
+        self.wrong2 = wrong2
+        self.wrong3 = wrong3
+
+question_list = []
+q1 = Question('Государственный язык Бразилии', 'Португальский', 'Бразильский', 'Испанский', 'Итальянский')
+question_list.append(q1)
+
+q2 = Question('Сколько цветов в Испанском флаге?', '3','2','4','1')
+question_list.append(q2)
+
+q3 = Question('Кто ты?', 'Помидор','Марсианин','Кот','Карандаш')
+question_list.append(q3)
+
+q4 = Question('.', ',','?','!','+')
+question_list.append(q4)
+
+
+
+
+app = QApplication([])
+my_win = QWidget()
+my_win.resize(500, 300)
+my_win.setWindowTitle('Memory Card')
+
+line = QVBoxLayout()
+
+text = QLabel('Какой национальности не существует?')
+h_line_1 = QHBoxLayout()
+h_line_1.addWidget(text, alignment = Qt.AlignCenter)
+line.addLayout(h_line_1)
+
+text1 = QGroupBox('Варианты ответов')
+h_line_2 = QHBoxLayout()
+h_line_2.addWidget(text1, alignment = Qt.AlignCenter)
+line.addLayout(h_line_2)
+
+text2 = QPushButton('Ответить')
+h_line_3 = QHBoxLayout()
+h_line_3.addWidget(text2, alignment = Qt.AlignCenter)
+line.addLayout(h_line_3)
+
+tor1 = QRadioButton('Энды')
+tor2 = QRadioButton('Чулымцы')
+tor3 = QRadioButton('Смурфы')
+tor4 = QRadioButton('Алеуты')
+
+red = QButtonGroup()
+red.addButton(tor1)
+red.addButton(tor2)
+red.addButton(tor3)
+red.addButton(tor4)
+
+h_line_a = QHBoxLayout()
+h_line_b = QVBoxLayout()
+h_line_c = QVBoxLayout()
+
+h_line_b.addWidget(tor1)
+h_line_b.addWidget(tor2)
+h_line_c.addWidget(tor3)
+h_line_c.addWidget(tor4)
+h_line_a.addLayout(h_line_b)
+h_line_a.addLayout(h_line_c)
+text1.setLayout(h_line_a)
+
+#форма ответа
+text3 = QGroupBox('Результат теста')
+a = QLabel('Правильно/Неправильно' )
+b = QLabel('Правильный ответ')
+h_line_g = QVBoxLayout()
+h_line_g.addWidget(a)
+h_line_g.addWidget(b)
+text3.setLayout(h_line_g)
+h_line_2.addWidget(text3)
+text3.hide()
+
+def show_result():
+    text1.hide()
+    text3.show()
+    text2.setText('Следующий вопрос')
+
+def show_questions():
+    text3.hide()
+    text1.show()
+    text2.setText('Ответить')
+    red.setExclusive(False)
+    tor1.setChecked(False)
+    tor2.setChecked(False)
+    tor3.setChecked(False)
+    tor4.setChecked(False)
+    red.setExclusive(True)
+
+
+from random import shuffle
+answer = [tor1, tor2, tor3, tor4]
+def ask(q:Question):
+    shuffle(answer)
+    answer[0].setText(q.right_answer)
+    answer[1].setText(q.wrong1)
+    answer[2].setText(q.wrong2)
+    answer[3].setText(q.wrong3)
+    text.setText(q.question)
+    b.setText(q.right_answer)
+    show_questions()
+
+def check_answer():
+    if answer[0].isChecked():
+        a.setText('Правильно')   
+        show_result()
+        my_win.score += 1
+    
+    elif answer[0].isChecked() or answer[1].isChecked() or answer[2].isChecked() or answer[3].isChecked():
+        a.setText('Неправильно') 
+        show_result()
+    print('Всего вопросов:' , my_win.total , 'Правильных ответов:' , my_win.score , 'Рейтинг:' , my_win.score / my_win.total * 100 , '%')
+
+
+def click_OK():
+    if text2.text() == "Ответить":
+        check_answer()
+    else:
+        next_question()
+
+def next_question():
+    my_win.total += 1
+    my_win.cur_question = randint(0, len(question_list)- 1)
+
+
+    q = question_list[my_win.cur_question]
+    ask(q)
+
+
+my_win.setLayout(line)
+
+my_win.score = 0
+my_win.total = 0
+text2.clicked.connect(click_OK)
+next_question()
+
+my_win.show()
+app.exec()
